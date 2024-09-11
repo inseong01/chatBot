@@ -1,0 +1,18 @@
+vercel realtime data
+
+vercel은 데이터 이벤트 구독을  지원하지 않는다. 
+websocket은 구독형 이벤트다. 프로젝트를 vercel로 배포하고 싶다면 데이터를 서버리스 함수 형식으로 배포하는 서비스를 고려할 수 있다. vercel 대쉬보드는 실시간 데이터 갱신을 SWR 서비스를 사용하고 있다. 
+
+Ably, supabase ...
+
+websocket 미지원
+https://vercel.com/docs/limits/overview#websockets
+
+socket.io 작동방식 - websocket
+https://socket.io/docs/v3/how-it-works/
+
+서버리스 란
+https://www.datadoghq.com/knowledge-center/serverless-architecture/
+
+supabase realtime 
+https://supabase.com/docs/guides/realtime?queryGroups=language&language=js
