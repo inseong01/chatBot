@@ -1,0 +1,17 @@
+supabase realtime 
+https://supabase.com/docs/guides/realtime?queryGroups=language&language=js
+
+- Realtime > Overview
+1. Dashboard 생성
+2. 코드 작성
+3. 클라이언트 창 콘솔 로그 확인 가능
+
+> Channel
+topic 선언 - table 필요 없음, 고유한 방 이름 임의로 설정
+
+> Broadcast
+setinterval() 사용하여 반복적으로 보낼 수 있음
+- subscribe()는 중복 선언될 수 없음. 다른 로컬호스트에서 메시지 발신자 선언해야 함
+- 본인이 발신하는 것은 보이지 않음 config self true 설정해야 보임
+
+Realtime 구현 방법 블로그 작성

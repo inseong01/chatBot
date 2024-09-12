@@ -1,0 +1,26 @@
+/* 메시지 */
+.msg {
+  background-color: #ddd;
+  border: 1px solid #ddd;
+  padding: 2px 18px;
+  border-radius: 20px;
+  margin: 4px 0;
+
+  display: inline-block;
+}
+.send .msg {
+  background-color: #ddd;
+}
+.receive .msg {
+  background-color: white;
+}
+
+/* 메시지 수신발신 위치 구분 */
+.send {
+  display: flex;
+  justify-content: end;
+}
+.receive {
+  display: flex;
+  justify-content: start;
+}

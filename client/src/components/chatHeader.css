@@ -1,0 +1,41 @@
+/* 헤더 */
+.chat-header {
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  line-height: 27px;
+  padding: 10px 24px;
+
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  color: #b3b3b3;
+}
+
+/* 헤더 객체 */
+.chat-header .icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid #b3b3b3;
+
+  text-align: center;
+  font-size: 11px;
+  line-height: 25px;
+
+  cursor: pointer;
+}
+.chat-header .title {
+  color: #222;
+  cursor: default;
+}
+.chat-header .close-btn {
+  cursor: pointer;
+}
+
+/* 호버 */
+.chat-header .close-btn:hover,
+.chat-header .icon:hover {
+  color: #222;
+  border-color: #222;
+}

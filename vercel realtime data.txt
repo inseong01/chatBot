@@ -14,5 +14,5 @@ https://socket.io/docs/v3/how-it-works/
 서버리스 란
 https://www.datadoghq.com/knowledge-center/serverless-architecture/
 
-supabase realtime 
-https://supabase.com/docs/guides/realtime?queryGroups=language&language=js
+supabase realtime.txt 이어짐
+

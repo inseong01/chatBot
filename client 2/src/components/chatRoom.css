@@ -1,0 +1,6 @@
+/* 대화 본문 */
+.chat-room {
+  padding: 16px;
+  height: calc(100%);
+  overflow: auto;
+}

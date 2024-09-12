@@ -1,11 +1,15 @@
+import './App.css';
 import { useState, useEffect } from 'react';
 import supabase from './supabase/supabaseClient.js';
+import ChatHeader from './components/chatHeader.jsx';
+import ChatRoom from './components/chatRoom.jsx';
+import ChatFooter from './components/chatFooter.jsx';
 
 // https://supabase.com/docs/guides/realtime?queryGroups=language&language=js
 
 const App = () => {
-  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     // 모든 데이터 가져옴
@@ -28,19 +32,16 @@ const App = () => {
 
   // 'message' 테이블, 새로운 메시지 추가하는 함수(insert)
   const sendMessage = async () => {
-    await supabase.from('messages').insert([{ content: newMessage }]);
+    if (newMessage.length === 0) return;
+    await supabase.from('messages').insert([{ content: newMessage, reciever: 'client', sender: 'admin' }]);
     setNewMessage('');
   };
 
   return (
-    <div>
-      <div>
-        {messages.map((message, index) => (
-          <div key={index}>{message.content}</div>
-        ))}
-      </div>
-      <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
-      <button onClick={sendMessage}>Send</button>
+    <div className="chat">
+      <ChatHeader />
+      <ChatRoom messages={messages} />
+      <ChatFooter sendMessage={sendMessage} newMessage={newMessage} setNewMessage={setNewMessage} />
     </div>
   );
 };

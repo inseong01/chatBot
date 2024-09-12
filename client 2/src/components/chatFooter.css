@@ -1,0 +1,31 @@
+/* 입력창 */
+.chat-footer {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* 입력창 객체 */
+.text_input {
+  flex: 1;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+.text_input:focus {
+  outline: none;
+}
+
+.text_input_btn {
+  background-color: #4084f1;
+  color: white;
+}
+.text_input_btn:focus {
+  outline: none;
+}
+.text_input_btn:hover {
+  background-color: #437fe0;
+  color: rgb(235, 235, 235);
+}
