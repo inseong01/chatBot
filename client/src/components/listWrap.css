@@ -1,0 +1,19 @@
+.list-wrap {
+  width: 100px;
+  height: 100%;
+  background-color: white;
+
+  border: 1px solid #ddd;
+  border-radius: 15px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.list-body {
+  overflow: auto;
+}
+/* 스크롤바 감춤 */
+.list-body::-webkit-scrollbar {
+  display: none;
+}

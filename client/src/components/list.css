@@ -1,0 +1,51 @@
+.list {
+  width: 100%;
+  /* height: 55px; */
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  cursor: pointer;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.list:hover {
+  background-color: #dddddd48;
+}
+
+.list .profile {
+  width: 30%;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #ddd;
+}
+
+.list .list-msg {
+  width: 80%;
+  /* background-color: #ddd; */
+
+  border-radius: 0;
+  border: none;
+}
+
+.list-msg .top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+.list-msg .top .name {
+  font-weight: 800;
+}
+.list-msg .top .time {
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.list-msg .content {
+  width: 150px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 9px;
+}

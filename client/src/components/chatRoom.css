@@ -4,3 +4,7 @@
   height: calc(100%);
   overflow: auto;
 }
+
+.chat-room::-webkit-scrollbar {
+  display: none;
+}

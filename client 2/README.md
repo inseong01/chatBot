@@ -70,4 +70,14 @@ const io = new Server(httpServer, {
 [handling-cors - socket.io Docs](https://socket.io/docs/v4/handling-cors/)
 
 ## websocket 배포 방법
-vercel
+간단하게 `socket.IO-client`를 `vercel`로 배포하였다. 콘솔로그에 오류가 발생했다. 서버로 연결되지 않는 상태였다. `CORS` 문제가 아니었다. 문제는 `vercel`이 `websocket`을 지원하지 않는 것이었다.    
+
+`vercel`은 응답/요청 구조로 되어 있다. `websocket`은 요청 없이도 응답한다. 실시간 데이터 이동을 `vercel` 프로젝트로 배포하려면 `Serverless Functions`을 사용하는 `thrid-party`를 고려해야 한다. 현재 `vercel` 대쉬보드는 `SWR`로 제작되었다.     
+
+서버리스가 아닌 `socket.IO`는 `vercel`로 배포할 수 없다.    
+
+### 참고자료
+[websocket 미지원 - vercel Docs](https://vercel.com/docs/limits/overview#websockets)    
+[socket.io 작동방식 - websocket Docs](https://socket.io/docs/v3/how-it-works/)    
+[서버리스란 - datadog](https://www.datadoghq.com/knowledge-center/serverless-architecture/)   
+[웹소켓 개념과 작동원리 - yuricoding](https://yuricoding.tistory.com/134)   

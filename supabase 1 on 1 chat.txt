@@ -1,0 +1,76 @@
+2024.9.13.
+
+supabase 1 on 1 chat
+
+	Postgres Changes
+	- filter: 'id = ...'
+
+	Broadcast
+	- channel(...)
+
+	현재 모든 사람들이 한 방에 있음
+	1:1 위한 방 필요
+	관리자는 여러 방, 고객은 하나의 방
+
+	방을 구현하기 위해 
+	고객은 channel()로 방 생성
+	관리자는 channel()로 방 입장
+
+	Broadcast는 메시지 저장되지 않음
+	
+	Postgres Changes 사용
+	() 방문자 테이블 생성, 방문자에게 고유 방id 부여
+	(v) Postgres messages 테이블 sender, receiver 속성을 type으로 통합
+		: client는 admin 메시지를 받고 admin은 client 메시지를 받음
+
+	"client"
+	방문자 사이트 접속 시 임의 방id 부여, 세션스토리지에 방id 저장
+		- id: uuid 타입으로 생성(SQL editor: alter table, add columns)
+	접속한 방 하나만 표시
+
+	"admin"
+	생성된 방 목록 표시
+
+구현
+	1. 접속인원 공통된 방에서 관리
+		방문자(클라이언트)
+			- 관리자에게 상태 전달 : Sending state
+
+		관리자(서버)
+			- 방문자 추척 : Sync and track state
+				sync : 현재 방 인원 알림
+				join : 방문자 접속 알림
+					- 'user_status' 테이블에 방문자 정보 저장
+					- 새로고침, 중복 삽입 문제 
+						: sessionStorage보다 js 파일에서 sql 설정
+						insert -> upsert 수정, onConflict 추가
+				leave : 방문자 떠남 알림
+					- 'user status' 테이블 방문자 정보 갱신
+	>> 웹 나가면 offline, 접속하면 새로운 id로 online, 새로고침 중복 삽입 제한
+		
+	2. 고유 채팅방id 생성
+	: 어디서? SQL? 클라이언트?
+		- SQL: 'user_status'에서 고유값 자동 생성/변함 없음, 값 받아오려면 이벤트 필요
+		- 클라이언트: 고유값 생성하면 바로 입장 가능, 새로고침 하면 값 변환됨(세션활용)
+		- 관리자: 방문자 고유 presence_ref 값 보안 이유로 사용 안 함
+	>> 클라이언트에서 uuid 생성, SQL 삽입할 때 중복 걸러짐, 세션활용 X
+
+	3. client 방 생성/입장
+		- 방 생성/입장
+		: 메시지 창, SQL 해당 방 ID 메시지만 불러옴
+		
+	4. admin 방 목록 생성/방 입장
+		- 방 목록 생성
+		: 관리자는 메시지를 해당 room_id 방으로 발신한다.
+		 client로부터 메시지를 수신하려면 해당 room_id 방이 따로 구현되어야 한다.
+		
+		<--- 채팅방 목록 데이터 연결 --->
+
+참고자료
+	- supabase Presence
+	https://supabase.com/docs/guides/realtime/presence?queryGroups=language&language=js
+	- uuid
+	https://docs.tosspayments.com/resources/glossary/uuid
+	- supabase javascript API
+	https://supabase.com/docs/reference/javascript/upsert
+

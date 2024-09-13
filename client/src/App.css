@@ -1,6 +1,15 @@
 .chat {
-  width: 500px;
-  height: 90vh;
+  display: flex;
+  width: 700px;
+  height: 95vh;
+}
+
+.chat .list-wrap {
+  flex: 1;
+}
+
+.chat .room {
+  width: 60%;
 
   border: 1px solid #ddd;
   border-radius: 15px;
@@ -8,4 +17,10 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+@media (width <= 600px) {
+  .chat {
+    width: 100%;
+  }
 }

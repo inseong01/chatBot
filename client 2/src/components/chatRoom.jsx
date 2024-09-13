@@ -1,6 +1,6 @@
+import './chatRoom.css';
 import PropTypes from 'prop-types';
 import Message from './message';
-import './chatRoom.css';
 
 export default function ChatRoom({ messages }) {
   return (
