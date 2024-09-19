@@ -64,7 +64,30 @@ supabase 1 on 1 chat
 		: 관리자는 메시지를 해당 room_id 방으로 발신한다.
 		 client로부터 메시지를 수신하려면 해당 room_id 방이 따로 구현되어야 한다.
 		
-		<--- 채팅방 목록 데이터 연결 --->
+	<--- 채팅방 목록 데이터 연결 --->
+	5. 채팅 접속자 현황 목록
+		'presence {event: 'join'}'  접속자 배열 추가, 접속자 목록 컴포넌트 반복 생성
+		'presence {event: 'sync'}' : 리렌더링 발생, 기록 저장하기 위해 'join'으로 변경
+		**event 변경해도 재접속으로 컴포넌트 key 중복 발생 지속**
+
+	7. 메시지 수신/발신
+		sendMessage() insert  SQL에 room_id 조건 추가 - 메시지 발신
+
+		- client
+		room_id 동일해야 insert 이벤트 동작 - 메시지 수신	
+		- admin
+		채팅방 클릭하면 해당 방ID 메시지 SQL로 불러옴, 
+		roomId 변경되면 insert 이벤트 id 맞게 불러오게 변경: 모든 메시지 받는 오류 수정
+		-> 모든 메시지 받아서 거르는 것 / 매번 구독 변경하는 것 무엇이 효율적인가?
+		
+	8. 메시지 상태
+		Realtime "presence" 활용
+		message 테이블, is_read: false 속성 생성 > 읽을 때 is_read: true 갱신
+		: 읽는 상황 부여 - admin, client 입력창에 포커스 할 때(조건 수정 가능) 
+		**RLS Enable 되어 있다면 기능 허용 설정**
+		** { data, error } 값 받으려면 뒤에 .select() 추가 **
+
+	<--- 메시지 정보 업데이트, 메시지 순서 바뀜 --->
 
 참고자료
 	- supabase Presence

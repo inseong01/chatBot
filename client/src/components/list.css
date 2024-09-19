@@ -9,6 +9,9 @@
   padding: 16px;
   box-sizing: border-box;
 }
+.list.on {
+  background-color: #dddddd48;
+}
 
 .list:hover {
   background-color: #dddddd48;

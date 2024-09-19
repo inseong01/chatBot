@@ -14,20 +14,21 @@ export const MyContext = createContext(null);
 const App = () => {
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([]);
-  const [roomId, setRoomId] = useState();
+  const [roomId, setRoomId] = useState('');
 
   useEffect(() => {
     // room_id 할당
     const room_id = uuidv4();
-    setRoomId(roomId);
+    setRoomId(room_id);
 
-    // 'messages' 테이블, 모든 데이터 가져옴
+    // 'messages' 테이블, ID 데이터 가져옴
     fetchMessages(room_id);
 
     // 'message' 테이블, 메시지 추가 이벤트 활성화(insert)
     supabase
       .channel('messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        if (payload.new.room_id !== room_id) return;
         setMessages((prevMessages) => [...prevMessages, payload.new]);
       })
       .subscribe();
@@ -51,22 +52,23 @@ const App = () => {
 
     roomTwo.subscribe(async (status) => {
       if (status !== 'SUBSCRIBED') return;
-
       const presenceTrackStatus = await roomTwo.track(userStatus);
       console.log(presenceTrackStatus);
     });
   }, []);
 
   // 'message' 테이블, 모든 데이터 가져오는 함수(select *)
-  const fetchMessages = async (room_id) => {
-    const { data } = await supabase.from('messages').select().eq('room_id', room_id);
+  const fetchMessages = async (id) => {
+    const { data } = await supabase.from('messages').select('*').eq('room_id', id);
     setMessages(data);
   };
 
   // 'message' 테이블, 새로운 메시지 추가하는 함수(insert)
   const sendMessage = async () => {
     if (newMessage.length === 0) return;
-    await supabase.from('messages').insert([{ content: newMessage, user_type: who }]);
+    await supabase
+      .from('messages')
+      .insert([{ content: newMessage, user_type: who, room_id: roomId, is_read: false }]);
     setNewMessage('');
   };
 
