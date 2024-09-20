@@ -19,8 +19,24 @@
 .send {
   display: flex;
   justify-content: end;
+  position: relative;
 }
 .receive {
   display: flex;
   justify-content: start;
+}
+
+.send:last-child.read::after {
+  content: 'read';
+  position: absolute;
+  right: 0;
+  bottom: -20px;
+  color: #999;
+}
+.send:last-child.unread::after {
+  content: 'send';
+  position: absolute;
+  right: 0;
+  bottom: -20px;
+  color: #999;
 }

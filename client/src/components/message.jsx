@@ -16,8 +16,10 @@ export default function Message({ message }) {
     console.error('who is not defined');
   }
 
+  const msgState = message.is_read ? 'read' : 'unread';
+
   return (
-    <div className={msgType}>
+    <div className={`${msgType} ${msgState}`}>
       <p className="msg">{content}</p>
     </div>
   );

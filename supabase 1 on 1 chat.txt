@@ -80,14 +80,39 @@ supabase 1 on 1 chat
 		roomId 변경되면 insert 이벤트 id 맞게 불러오게 변경: 모든 메시지 받는 오류 수정
 		-> 모든 메시지 받아서 거르는 것 / 매번 구독 변경하는 것 무엇이 효율적인가?
 		
-	8. 메시지 상태
-		Realtime "presence" 활용
+	8. 메시지 상태 1
 		message 테이블, is_read: false 속성 생성 > 읽을 때 is_read: true 갱신
 		: 읽는 상황 부여 - admin, client 입력창에 포커스 할 때(조건 수정 가능) 
 		**RLS Enable 되어 있다면 기능 허용 설정**
 		** { data, error } 값 받으려면 뒤에 .select() 추가 **
 
 	<--- 메시지 정보 업데이트, 메시지 순서 바뀜 --->
+	9. 메시지 상태 2
+	: 입력창(footer) 선택되고 있을 때(true) 읽음, 다른 곳 선택(false)
+		- user_type: 발신인 구분하여 읽음 갱신
+		- order('id') 메시지 생성 순으로 정렬
+	
+	10. 메시지 정보 불러오기 & 덮어씌우기
+	: update 구독 부분,  일치하는 id와 데이터 덮어씌우기 함수 생성
+	setState(prev => ()), update 데이터와 prev 배열과 일치하는 값 덮어씌움
+	
+	11. 메시지 상태 스타일링
+	: last-child 가상요소로 상황에 맞춰 className 변화
+
+	12. 유저 상태 1
+	: 본인 입력창에 문자가 있으면 상대방에게 '입력중' 출력
+	user_status 정보 업데이트
+
+	13. 입력중 출력 및 스타일링
+	: 실시간 업데이트 상태에 따라 && 논리 연산자로 '입력중' 출력, undefined '?.' 처리
+	CSS 애니메이션 설정	
+		- 업데이트가 쿼리가 동작해도 받아올 수 없는 문제
+		: Realtime Enable 활성화 필요
+		- 입력 중 true 중복 업데이트/리렌더링 방지
+		: 문자열 수 조건 설정
+		-> 근본 원인: 재접속 쿼리 중복 생성(offline client/admin 열이 많음)
+	
+	<--- client, 입력중 출력 적용, 입력중 새로고침 시 적용되는 문제 수정 --->
 
 참고자료
 	- supabase Presence
