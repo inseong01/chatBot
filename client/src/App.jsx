@@ -24,25 +24,56 @@ export const MyContext = createContext(null);
 // 채팅목록 방문자 중복 생성 방지
 function preventDuplicatedUser(prev, data) {
   // 거르는 조건 (참인 경우)
-  const isDuplicated = prev.findIndex(
-    (user) =>
-      user[0].room_id === data[0].room_id || data[0].user_type === 'admin' || data[0].status === 'offline'
-  );
-  if (prev.length === 0) {
+  if (!prev || prev.length === 0) {
     return [data];
-  } else if (isDuplicated === -1) {
-    return [data, ...prev];
   } else {
-    return [...prev];
+    console.log('data', data);
+    const isDuplicated = prev.findIndex(
+      (user) => user[0].room_id === data[0].room_id || data[0].user_type === 'admin'
+    );
+    if (isDuplicated !== -1) {
+      return prev;
+    } else {
+      return [data, ...prev];
+    }
   }
 }
 
 // 갱신 정보 덮어씌우는 함수
-const overwriteMessages = (prev, data) => {
+const overwriteData = (prev, data, type) => {
   return prev.map((item) => {
-    const findUpdateItme = data.find((d) => d.id === item.id);
-    return findUpdateItme ? findUpdateItme : item;
+    switch (type) {
+      case 'user_status': {
+        const findUpdateItme = data.find((d) => d.room_id === item[0].room_id);
+        return findUpdateItme ? [findUpdateItme] : item;
+      }
+      case 'messages': {
+        const findUpdateItme = data.find((d) => d.id === item.id);
+        return findUpdateItme ? findUpdateItme : item;
+      }
+      default:
+        return console.error('overwriteData Error');
+    }
   });
+};
+
+// 'user_status' 테이블, 유저 상태 갱신
+const updateLeaveUser = async (status, key, setUserList) => {
+  const id = status === 'online' ? 'room_id' : 'user_id';
+  const { data, error } = await supabase
+    .from('user_status')
+    .update([
+      {
+        status: status,
+        last_updated: String(Date.now()),
+      },
+    ])
+    .eq(id, key)
+    .order('online_at', { ascending: true })
+    .select();
+
+  if (error) return console.error('updateLeaveUser Error', error);
+  else return setUserList((prev) => overwriteData(prev, data, 'user_status'));
 };
 
 const App = () => {
@@ -51,17 +82,29 @@ const App = () => {
   const [userList, setUserList] = useState([]);
   const [roomId, setRoomId] = useState('');
   const [isFocus, setIsFocus] = useState(false);
-  const [opponentStatusArr, setOpponentStatusArr] = useState([]);
 
+  // 채팅방 선택, roomId 맞춰 메시지 불러옴
   useEffect(() => {
+    fetchMessages(roomId);
+
+    // 'message' 테이블, 이벤트 활성화
+    supabase
+      .channel('messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        setMessages((prevMessages) => [...prevMessages, payload.new]);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+        setMessages((prev) => overwriteData(prev, [payload.new], 'messages'));
+      })
+      .subscribe();
+
     // 'user_status' 테이블
-    fetchOpponentStatusArr();
     supabase
       .channel('user_status')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_status' }, (payload) => {
         console.log('user_status UPDATE', payload);
         // 상대방 변경 정보 추출
-        setOpponentStatusArr((prev) => overwriteMessages(prev, [payload.new]));
+        setUserList((prev) => overwriteData(prev, [payload.new], 'user_status'));
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
         console.log('user_status SELECT', payload);
@@ -73,11 +116,15 @@ const App = () => {
     roomOne
       .on('presence', { event: 'sync' }, () => {
         const newState = roomOne.presenceState();
-        console.log('sync', newState);
+        // userList 업데이트
+        Object.keys(newState).forEach((person) => {
+          updateLeaveUser('online', newState[person][0].room_id, setUserList);
+        });
+        console.log('sync');
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('join', newPresences);
-        // 'user_status', 방문한 유저 전달
+        console.log('join');
+        // 'user_status', 방문한 유저 전달(중복생성 제한)
         const sendVisitUser = async () => {
           // room_id 생성
           const { data, error } = await supabase
@@ -92,34 +139,22 @@ const App = () => {
                 room_id: newPresences[0].room_id,
               },
               {
-                onConflict: 'user_id',
+                ignoreDuplicates: 'true',
+                onConflict: 'room_id',
               }
             )
             .select();
 
-          if (error) {
-            console.error('Presence join', error);
-          } else {
-            setUserList((prev) => preventDuplicatedUser(prev, data));
-          }
+          if (error) console.error('Presence join', error);
+          else setUserList((prev) => preventDuplicatedUser(prev, newPresences));
         };
         sendVisitUser();
       })
-      .on('presence', { event: 'leave' }, ({ key, leftPresence }) => {
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        // leftPresences 자동 leave는 undefined
         console.log('leave');
         // 'user_status', 나간 유저 상태 갱신
-        const updateLeaveUser = async () => {
-          await supabase
-            .from('user_status')
-            .update([
-              {
-                status: 'offline',
-                last_updated: String(Date.now()),
-              },
-            ])
-            .eq('user_id', key);
-        };
-        updateLeaveUser();
+        updateLeaveUser('offline', key, setUserList);
       })
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') return;
@@ -127,27 +162,6 @@ const App = () => {
         console.log(presenceTrackStatus);
       });
   }, []);
-
-  // 채팅방 선택, roomId 맞춰 메시지 불러옴
-  useEffect(() => {
-    if (!roomId) return;
-    fetchMessages(roomId);
-    supabase.channel('messages').unsubscribe();
-
-    // 'message' 테이블, id 변경될 때 메시지 추가 이벤트 활성화(insert)
-    supabase
-      .channel('messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-        // console.log('postgres_changes INSERT', payload);
-        if (payload.new.room_id !== roomId) return;
-        setMessages((prevMessages) => [...prevMessages, payload.new]);
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-        // console.log('postgres_changes UPDATE', payload);
-        setMessages((prev) => overwriteMessages(prev, [payload.new]));
-      })
-      .subscribe();
-  }, [roomId]);
 
   // 메시지 업데이트 조건 1 - 읽음
   useEffect(() => {
@@ -178,18 +192,10 @@ const App = () => {
   // 초기 함수
   // 'messages', room_id 일치하는 메시지 가져오는 함수
   const fetchMessages = async (id) => {
-    if (!id) return;
-    const { data } = await supabase.from('messages').select('*').eq('room_id', id);
+    // if (!id) return;
+    const { data } = await supabase.from('messages').select('*');
+    // .eq('room_id', id);
     setMessages(data);
-  };
-  // 'user_status', 상대방 상태 가져오는 함수
-  const fetchOpponentStatusArr = async () => {
-    const { data } = await supabase
-      .from('user_status')
-      .select('*')
-      .eq('user_type', 'client')
-      .eq('status', 'online');
-    setOpponentStatusArr(data);
   };
 
   // 'messages', room_id 메시지 상태 갱신하는 함수
@@ -217,10 +223,10 @@ const App = () => {
   return (
     <MyContext.Provider value={who}>
       <div className="chat">
-        <ListWrap userList={userList} setRoomId={setRoomId} />
+        <ListWrap userList={userList} setRoomId={setRoomId} messages={messages} />
         <div className="room">
           <ChatHeader icon={false} title={'ChatBot'} btn={false} who={who} />
-          <ChatRoom messages={messages} opponentStatusArr={opponentStatusArr} roomId={roomId} />
+          <ChatRoom messages={messages} userList={userList} roomId={roomId} />
           <ChatFooter
             sendMessage={sendMessage}
             newMessage={newMessage}

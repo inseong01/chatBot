@@ -2,7 +2,8 @@
 .chat-room {
   padding: 16px;
   height: calc(100%);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .chat-room::-webkit-scrollbar {

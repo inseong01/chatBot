@@ -12,10 +12,20 @@ const who = 'client';
 export const MyContext = createContext(null);
 
 // 갱신 정보 덮어씌우는 함수
-const overwriteMessage = (prev, data) => {
+const overwriteData = (prev, data, type) => {
   return prev.map((item) => {
-    const findUpdateItem = data.find((d) => d.id === item.id);
-    return findUpdateItem ? findUpdateItem : item;
+    switch (type) {
+      case 'user_status': {
+        const findUpdateItme = data.find((d) => d.room_id === item[0].room_id);
+        return findUpdateItme ? [findUpdateItme] : item;
+      }
+      case 'messages': {
+        const findUpdateItme = data.find((d) => d.id === item.id);
+        return findUpdateItme ? findUpdateItme : item;
+      }
+      default:
+        return console.error('overwriteData Error');
+    }
   });
 };
 
@@ -25,6 +35,7 @@ const App = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [oppntUserInfo, setOppntUserInfo] = useState({});
   const roomId = useRef(null);
+  console.log('oppntUserInfo', oppntUserInfo);
 
   useEffect(() => {
     // room_id 할당
@@ -39,7 +50,7 @@ const App = () => {
       .channel('messages')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
         console.log('UPDATE', payload);
-        setMessages((prev) => overwriteMessage(prev, [payload.new]));
+        setMessages((prev) => overwriteData(prev, [payload.new], 'messages'));
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         if (payload.new.room_id !== room_id) return;
@@ -52,8 +63,8 @@ const App = () => {
     supabase
       .channel('user_status')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_status' }, (payload) => {
-        setOppntUserInfo(payload.new);
-        console.log('user_status UPDATE', payload);
+        if (payload.new.user_type === 'admin') setOppntUserInfo(payload.new);
+        // console.log('user_status UPDATE', payload);
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
         console.log('user_status SELECT', payload);
@@ -134,8 +145,8 @@ const App = () => {
   return (
     <MyContext.Provider value={who}>
       <div className="chat">
-        <ChatHeader />
-        <ChatRoom messages={messages} />
+        <ChatHeader oppntUserInfo={oppntUserInfo} />
+        <ChatRoom messages={messages} oppntUserInfo={oppntUserInfo} />
         <ChatFooter
           sendMessage={sendMessage}
           newMessage={newMessage}

@@ -113,6 +113,35 @@ supabase 1 on 1 chat
 		-> 근본 원인: 재접속 쿼리 중복 생성(offline client/admin 열이 많음)
 	
 	<--- client, 입력중 출력 적용, 입력중 새로고침 시 적용되는 문제 수정 --->
+	14. 입력중 출력 오류 수정
+	: 상대방 입력하면 업데이트 정보 전달 받지만 화면 출력되지 않음
+		- newMessages 의존-본인정보 갱신, 새로운 채팅방 포함하지 않고 있음,
+		기존 유저 목록 사용하고 있지 않았음(새로운 상태를 만들었음), 
+		데이터 접근 형태 수정(user_status, messages 환경 맞춰 overwrite)
+	
+	15. 상대방 온라인 상태 구현
+	: userList 상태 속성 불러오기
+
+	16. 메시지 박스 최대 크기 설정
+	: max-width, 영문 word-break 설정
+
+	17. 채팅방 메시지 넘칠 시 채팅방 높이 하단 고정 설정
+	: chatroom useRef 지정, 메시지 생성마다 scrollTop() y축 하단 이동
+
+	18. admin, 채팅방 알람 구현
+	: 읽지 않은 메시지 개수 채팅목록에 표시
+		전) 선택한 채팅방 메시지
+		- 채팅방 눌러야 메시지 불러옴, 알람 표시 어려움
+		후) 모든 메시지 
+		- room_id 기준으로 읽지 않은 메시지로 알람 표시 가능, 최적화 필요
+
+	19. 채팅방 status 상태 오류 수정
+	: presence {event} 활용, leave 'offline', sync 'online', join 'online' 
+		- 'user_status' 상태 갱신 함수 적용
+		- sql 'user_status' 테이블 'room_id' onConflict 적용으로 행 중복 생성 방지
+		(새로고침은 room_id 새로 생성됨)
+
+	<--- client, admin 오프라인 상태 추적 --->
 
 참고자료
 	- supabase Presence

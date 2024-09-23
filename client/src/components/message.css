@@ -1,5 +1,6 @@
 /* 메시지 */
 .msg {
+  max-width: 190px;
   background-color: #ddd;
   border: 1px solid #ddd;
   padding: 2px 18px;
@@ -7,6 +8,7 @@
   margin: 4px 0;
 
   display: inline-block;
+  word-break: break-word;
 }
 .send .msg {
   background-color: #ddd;

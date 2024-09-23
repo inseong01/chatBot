@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import './list.css';
 import PropTypes from 'prop-types';
 
-export default function List({ list, setRoomId }) {
+export default function List({ list, setRoomId, messages }) {
   const [clickable, setClickacble] = useState(false);
   const listTag = useRef(null);
-  const { room_id, last_updated, online_at } = list;
 
+  const { room_id, online_at, status } = list;
   const time = new Date(online_at).toLocaleTimeString('ko-KR');
+  const unreadMsg = messages.filter((msg) => msg.room_id === room_id && msg.is_read === false);
 
   const onClickChatRoom = () => {
     setRoomId(room_id);
@@ -34,9 +35,9 @@ export default function List({ list, setRoomId }) {
         <div className="list-msg">
           <div className="top">
             <div className="name">{room_id.slice(0, 3)}</div>
-            <div className="time">{time}</div>
+            <div className="time">{status === 'online' ? '활성화' : '비활성화'}</div>
           </div>
-          <div className="content">전달 받은 메시지 내용 표시</div>
+          <div className="content">안 읽은 메시지 {unreadMsg.length}</div>
         </div>
       </div>
     </>
@@ -46,4 +47,5 @@ export default function List({ list, setRoomId }) {
 List.propTypes = {
   list: PropTypes.object,
   setRoomId: PropTypes.func,
+  messages: PropTypes.array,
 };
