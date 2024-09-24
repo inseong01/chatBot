@@ -10,32 +10,54 @@
   box-sizing: border-box;
 
   color: #b3b3b3;
+  position: relative;
 }
 
 /* 헤더 객체 */
 .chat-header .icon {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  border: 1px solid #b3b3b3;
+  font-size: 10px;
+  font-weight: 600;
 
-  text-align: center;
-  font-size: 11px;
-  line-height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 
-  cursor: pointer;
+  cursor: default;
 }
+.chat-header .icon span {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.chat-header .icon.online {
+  color: green;
+}
+.chat-header .icon.offline {
+  color: #b3b3b3;
+}
+.chat-header .icon.online span {
+  background-color: green;
+}
+.chat-header .icon.offline span {
+  background-color: #b3b3b3;
+}
+
 .chat-header .title {
   color: #222;
   cursor: default;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .chat-header .close-btn {
   cursor: pointer;
 }
 
 /* 호버 */
-.chat-header .close-btn:hover,
-.chat-header .icon:hover {
+.chat-header .close-btn:hover {
   color: #222;
   border-color: #222;
 }

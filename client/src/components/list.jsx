@@ -8,7 +8,9 @@ export default function List({ list, setRoomId, messages }) {
 
   const { room_id, online_at, status } = list;
   const time = new Date(online_at).toLocaleTimeString('ko-KR');
-  const unreadMsg = messages.filter((msg) => msg.room_id === room_id && msg.is_read === false);
+  const unreadMsg = messages.filter(
+    (msg) => msg.room_id === room_id && msg.user_type === 'client' && msg.is_read === false
+  );
 
   const onClickChatRoom = () => {
     setRoomId(room_id);

@@ -1,0 +1,30 @@
+.bot-msg {
+  padding: 30px 10px;
+}
+
+.bot-msg .title {
+  margin-bottom: 0px;
+}
+.bot-msg .subtitle {
+  margin-bottom: 20px;
+}
+
+.bot-msg .qusetion-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bot-msg .qusetion {
+  border: 1px solid #ddd;
+  border-radius: 30px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 16px;
+
+  cursor: pointer;
+}
+.bot-msg .qusetion:hover {
+  background-color: #ddd;
+}

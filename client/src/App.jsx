@@ -123,7 +123,7 @@ const App = () => {
         console.log('sync');
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('join');
+        console.log('join', newPresences);
         // 'user_status', 방문한 유저 전달(중복생성 제한)
         const sendVisitUser = async () => {
           // room_id 생성
@@ -207,6 +207,7 @@ const App = () => {
       .order('id', { ascending: false })
       .select();
     if (error) return console.error('UpdateMessage Error', error);
+    console.log('updateMessage', data);
     if (!data[0]) return;
   };
 

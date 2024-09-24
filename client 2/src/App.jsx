@@ -17,11 +17,12 @@ const overwriteData = (prev, data, type) => {
     switch (type) {
       case 'user_status': {
         const findUpdateItme = data.find((d) => d.room_id === item[0].room_id);
+        console.log(prev, data, findUpdateItme);
         return findUpdateItme ? [findUpdateItme] : item;
       }
       case 'messages': {
-        const findUpdateItme = data.find((d) => d.id === item.id);
-        return findUpdateItme ? findUpdateItme : item;
+        const findUpdateItme = data.find((d) => d.id === item[0].id);
+        return findUpdateItme ? [findUpdateItme] : item;
       }
       default:
         return console.error('overwriteData Error');
@@ -35,15 +36,11 @@ const App = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [oppntUserInfo, setOppntUserInfo] = useState({});
   const roomId = useRef(null);
-  console.log('oppntUserInfo', oppntUserInfo);
 
   useEffect(() => {
     // room_id 할당
     const room_id = uuidv4();
     roomId.current = room_id;
-
-    // 'messages' 테이블, ID 데이터 가져옴
-    fetchMessages(room_id);
 
     // 'message' 테이블, 메시지 추가 이벤트 활성화(insert)
     supabase
@@ -54,8 +51,8 @@ const App = () => {
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         if (payload.new.room_id !== room_id) return;
-        setMessages((prevMessages) => [...prevMessages, payload.new]);
-        console.log('INSERT', payload);
+        setMessages((prevMessages) => [...prevMessages, [payload.new]]);
+        console.log('INSERT', payload.new);
       })
       .subscribe();
 
@@ -63,28 +60,50 @@ const App = () => {
     supabase
       .channel('user_status')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_status' }, (payload) => {
-        if (payload.new.user_type === 'admin') setOppntUserInfo(payload.new);
-        // console.log('user_status UPDATE', payload);
+        if (payload.new.user_type === 'admin') {
+          setOppntUserInfo({ status: true, is_typing: payload.new.is_typing });
+        }
+        console.log('user_status UPDATE', payload);
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
         console.log('user_status SELECT', payload);
       })
       .subscribe();
 
+    // 'bot_questions' 테이블 이벤트 설정
+    supabase
+      .channel('bot_questions')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bot_questions' }, (payload) => {
+        console.log('bot_questions UPDATE', payload);
+      })
+      .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'bot_questions' }, (payload) => {
+        console.log('bot_questions SELECT', payload);
+      })
+      .subscribe();
+
     // Realtime 'presence'
-    const roomTwo = supabase.channel('room-one');
+    const roomOne = supabase.channel('room-one');
     const userStatus = {
       user: 'user-2',
       online_at: new Date().toISOString(),
       user_type: who,
       room_id: room_id,
     };
+    roomOne
+      .on('presence', { event: 'sync' }, () => {
+        const newState = roomOne.presenceState();
+        const adminIndex = Object.keys(newState).findIndex((key) => newState[key][0].user_type === 'admin');
+        if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false }));
+        console.log('sync', newState);
+      })
+      .subscribe(async (status) => {
+        if (status !== 'SUBSCRIBED') return;
+        const presenceTrackStatus = await roomOne.track(userStatus);
+        console.log('presenceTrackStatus', presenceTrackStatus);
+      });
 
-    roomTwo.subscribe(async (status) => {
-      if (status !== 'SUBSCRIBED') return;
-      const presenceTrackStatus = await roomTwo.track(userStatus);
-      console.log(presenceTrackStatus);
-    });
+    // chat_bot
+    botTable();
   }, []);
 
   // 메시지 업데이트 조건 1 - 읽음
@@ -103,21 +122,25 @@ const App = () => {
     }
   }, [newMessage]);
 
-  // 'message' 테이블, 모든 데이터 가져오는 함수(select *)
-  const fetchMessages = async (id) => {
-    const { data } = await supabase.from('messages').select('*').eq('room_id', id);
-    setMessages(data);
-  };
+  // 'message' 'bot_answer' 테이블, 메시지 보내는 함수
+  const sendMessage = async (id = undefined, table = 'message') => {
+    if (newMessage.length === 0 && table === 'message') return;
 
-  // 'message' 테이블, 새로운 메시지 추가하는 함수(insert)
-  const sendMessage = async () => {
-    if (newMessage.length === 0) return;
-    await supabase
-      .from('messages')
-      .insert([{ content: newMessage, user_type: who, room_id: roomId.current, is_read: false }]);
-    setNewMessage('');
-    setIsFocused(false);
-    updateUser(false);
+    switch (table) {
+      case 'message': {
+        await supabase
+          .from('messages')
+          .insert([{ content: newMessage, user_type: who, room_id: roomId.current, is_read: false }]);
+        setNewMessage('');
+        setIsFocused(false);
+        updateUser(false);
+        break;
+      }
+      case 'bot_answer': {
+        botTable(id);
+        break;
+      }
+    }
   };
 
   // 'message' 테이블, 메시지 상태 갱신하는 함수
@@ -142,16 +165,40 @@ const App = () => {
     if (error) return console.error('UpdateUser Error', error);
   };
 
+  // 'bot' 테이블, 질문/답변 불러오는 함수
+  const botTable = async (id = 1, table = 'bot_questions') => {
+    switch (table) {
+      case 'bot_questions': {
+        const { data, error } = await supabase.from('bot_questions').select().eq('id', id);
+        if (error) return console.error('botQuestions Error', error);
+        setMessages((prev) => {
+          if (prev) return [...prev, data];
+          else return [data];
+        });
+        console.log('bot_questions', data, typeof data);
+        break;
+      }
+      case 'bot_answer': {
+        const { data, error } = await supabase.from('bot_answer').select().eq('id', String(id));
+        if (error) return console.error('botAnswer Error', error);
+        setMessages((prev) => [...prev, data]);
+        console.log('bot_answer', data, typeof data);
+        break;
+      }
+    }
+  };
+
   return (
     <MyContext.Provider value={who}>
       <div className="chat">
         <ChatHeader oppntUserInfo={oppntUserInfo} />
-        <ChatRoom messages={messages} oppntUserInfo={oppntUserInfo} />
+        <ChatRoom messages={messages} oppntUserInfo={oppntUserInfo} sendMessage={sendMessage} />
         <ChatFooter
           sendMessage={sendMessage}
           newMessage={newMessage}
           setNewMessage={setNewMessage}
           setIsFocused={setIsFocused}
+          oppntUserInfo={oppntUserInfo}
         />
       </div>
     </MyContext.Provider>
