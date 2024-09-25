@@ -93,7 +93,7 @@ const App = () => {
       .on('presence', { event: 'sync' }, () => {
         const newState = roomOne.presenceState();
         const adminIndex = Object.keys(newState).findIndex((key) => newState[key][0].user_type === 'admin');
-        if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false }));
+        if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false, is_typing: false }));
         console.log('sync', newState);
       })
       .subscribe(async (status) => {
@@ -123,21 +123,25 @@ const App = () => {
   }, [newMessage]);
 
   // 'message' 'bot_answer' 테이블, 메시지 보내는 함수
-  const sendMessage = async (id = undefined, table = 'message') => {
-    if (newMessage.length === 0 && table === 'message') return;
-
+  const sendMessage = async (newMsg = undefined, id = undefined, table = 'message') => {
+    if (!newMsg && newMessage.length === 0 && table === 'message') return;
+    const msg = newMsg === undefined ? newMessage : newMsg;
+    console.log('msg', msg);
     switch (table) {
       case 'message': {
         await supabase
           .from('messages')
-          .insert([{ content: newMessage, user_type: who, room_id: roomId.current, is_read: false }]);
+          .insert([{ content: String(msg), user_type: who, room_id: roomId.current, is_read: false }]);
         setNewMessage('');
         setIsFocused(false);
         updateUser(false);
         break;
       }
       case 'bot_answer': {
-        botTable(id);
+        // 답변 딜레이, 전송 메시지 삽입 먼저-애니메이션 추가 가능
+        setTimeout(() => {
+          botTable(id);
+        }, 1000);
         break;
       }
     }
@@ -166,7 +170,7 @@ const App = () => {
   };
 
   // 'bot' 테이블, 질문/답변 불러오는 함수
-  const botTable = async (id = 1, table = 'bot_questions') => {
+  const botTable = async (id = 0, table = 'bot_questions') => {
     switch (table) {
       case 'bot_questions': {
         const { data, error } = await supabase.from('bot_questions').select().eq('id', id);
@@ -192,7 +196,12 @@ const App = () => {
     <MyContext.Provider value={who}>
       <div className="chat">
         <ChatHeader oppntUserInfo={oppntUserInfo} />
-        <ChatRoom messages={messages} oppntUserInfo={oppntUserInfo} sendMessage={sendMessage} />
+        <ChatRoom
+          messages={messages}
+          oppntUserInfo={oppntUserInfo}
+          sendMessage={sendMessage}
+          setNewMessage={setNewMessage}
+        />
         <ChatFooter
           sendMessage={sendMessage}
           newMessage={newMessage}

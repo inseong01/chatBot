@@ -1,18 +1,63 @@
+/* 봇 메시지 */
 .bot-msg {
-  padding: 30px 10px;
+  padding: 30px 5px 20px;
+}
+/* 봇 프로젝트 메시지 */
+.msg.projects .bot-msg {
+  padding: 0;
+}
+.msg.projects .qusetion-wrap {
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+.msg.projects .qusetion {
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 10px 24px 25px;
+  gap: 8px;
+  text-align: center;
+}
+.msg.projects .qusetion div:nth-child(1) {
+  width: 120px;
+  height: 120px;
+  background-color: antiquewhite;
+  border-radius: 50%;
+  line-height: 120px;
+}
+.msg.projects .qusetion div:nth-child(2) {
+  width: 100%;
+  font-size: 1.3rem;
+}
+.msg.projects .qusetion div:nth-child(3) {
+  width: 100%;
+  height: 50%;
+  font-size: 1rem;
+}
+.msg.projects .subtitle {
+  margin-bottom: 0;
+}
+.msg.projects .qusetion:last-child {
+  margin-top: 0px;
 }
 
+/* 질문 목록 */
+.bot-msg.first .qusetion-wrap {
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+
+/* 메시지 구성요소 */
 .bot-msg .title {
-  margin-bottom: 0px;
+  margin-bottom: 5px;
 }
 .bot-msg .subtitle {
-  margin-bottom: 20px;
+  margin-bottom: 50px;
 }
 
 .bot-msg .qusetion-wrap {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 3px;
 }
 .bot-msg .qusetion {
   border: 1px solid #ddd;
@@ -24,7 +69,17 @@
   padding: 2px 16px;
 
   cursor: pointer;
+  word-break: keep-all;
+  flex: 1;
 }
-.bot-msg .qusetion:hover {
-  background-color: #ddd;
+.bot-msg .qusetion:last-child {
+  margin-top: 5px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bot-msg .qusetion:hover {
+    color: #fff;
+    background-color: #4084f1;
+    border-color: #4084f1;
+  }
 }

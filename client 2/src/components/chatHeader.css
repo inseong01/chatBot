@@ -56,8 +56,9 @@
   cursor: pointer;
 }
 
-/* 호버 */
-.chat-header .close-btn:hover {
-  color: #222;
-  border-color: #222;
+@media (hover: hover) {
+  .chat-header .close-btn:hover {
+    color: #222;
+    border-color: #222;
+  }
 }

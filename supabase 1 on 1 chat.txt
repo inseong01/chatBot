@@ -166,6 +166,34 @@ supabase 1 on 1 chat
 				'metadata.question': 질문 목록, 선택 시 답변 메시지 생성
 	
 	<--- client, chatbot 질문/답변 유형 결정 --->
+	22. supabase bot_questions 테이블 질문/답변 작성
+	: 속성 추가 및 수정, row 생성 - cvs 사용 
+	**한글 utf-8 변환 깨짐, 열 속성 내용 수정 필요**
+
+	23. 챗봇 응답 질문 유형 별 스타일링 구현
+		- 인적사항 컴포넌트
+		: 일반적인 목록 디자인, 가로 정렬, 메시지 1개, 질문/돌아가기 2단 레이어 구조
+		- 프로젝트 컴포넌트
+		: json "metadata" 2개 부여, 슬라이드 디자인, 가로 정렬, 
+		메시지 2개 - 응답1_간단소개, 응답2_swiper
+
+	24. 선택 질문 메시지 전송 구현
+	: sendMessage(), 	인자 추가하여 선택한 질문 전송되도록 설정, 순환참조 오류 발생			- "bot_answer" table 반응 딜레이 추가
+		: 발신 메시지보다 수신 메시지가 먼저 도착, 수신 메시지 setTimeout 설정
+
+	- 오류 해결
+	PostgrestBuilder.ts:84 
+ 	Uncaught (in promise) TypeError: Converting circular structure to JSON
+    	--> starting at object with constructor 'HTMLButtonElement'
+	**순환참조 오류: button onClick={() => sendMessage} 해결**
+
+	25. 모바일 스타일링
+		- hover 제거
+		: @media (hover: hover) and (pointer: fine) {}; 마우스 있는 장치에서만 hover 동작
+		- 파란박스 제거
+		:  -webkit-tap-highlight-color: rgba(0,0,0,0);
+
+	<--- 챗봇 프로젝트 스타일링, 오류 수정 --->
 
 참고자료
 	- supabase Presence

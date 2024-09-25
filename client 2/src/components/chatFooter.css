@@ -25,7 +25,10 @@
 .text_input_btn:focus {
   outline: none;
 }
-.text_input_btn:hover {
-  background-color: #437fe0;
-  color: rgb(235, 235, 235);
+
+@media (hover: hover) and (pointer: fine) {
+  .text_input_btn:hover {
+    background-color: #437fe0;
+    color: rgb(235, 235, 235);
+  }
 }

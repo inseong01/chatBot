@@ -144,7 +144,7 @@ const App = () => {
               }
             )
             .select();
-
+          if (newPresences[0].user_type === 'admin') return;
           if (error) console.error('Presence join', error);
           else setUserList((prev) => preventDuplicatedUser(prev, newPresences));
         };

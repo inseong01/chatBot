@@ -1,6 +1,6 @@
 /* 메시지 */
 .msg {
-  max-width: 190px;
+  max-width: 270px;
   word-break: break-all;
   background-color: #ddd;
   border: 1px solid #ddd;
@@ -9,6 +9,11 @@
   margin: 4px 0;
 
   display: inline-block;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.msg.projects {
+  padding: 8px 12px;
 }
 .send .msg {
   background-color: #ddd;
@@ -43,4 +48,25 @@
   bottom: -20px;
   font-size: 16px;
   color: #999;
+}
+
+/* swiper */
+.swiper {
+  --swiper-navigation-size: 1rem;
+  --swiper-navigation-sides-offset: 0px;
+  --swiper-pagination-bottom: 0px;
+}
+.swiper-wrapper {
+  height: 300px !important;
+}
+
+.swiper-slide .qusetion {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
 }

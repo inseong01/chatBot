@@ -8,11 +8,15 @@ export default function BotMessage({ message, sendMessage }) {
   const onClickQuestion = (q) => {
     return () => {
       const selectedQusetion = q;
-      sendMessage(selectedQusetion.id, 'bot_answer');
+      // 선택 질문 메시지 배열에 추가
+      sendMessage(selectedQusetion.q);
+      // 요청 전달
+      sendMessage(undefined, selectedQusetion.id, 'bot_answer');
     };
   };
+
   return (
-    <div className="bot-msg">
+    <div className={`bot-msg ${message.id === '0' ? 'first' : ''}`}>
       <div className="title">{title}</div>
       <div className="subtitle">{subtitle}</div>
       <div className="qusetion-wrap">
