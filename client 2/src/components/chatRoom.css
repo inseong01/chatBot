@@ -1,8 +1,11 @@
 /* 대화 본문 */
 .chat-room {
-  padding: 16px;
+  width: 100%;
   height: calc(100%);
+  padding: 16px;
   overflow: auto;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .chat-room::-webkit-scrollbar {

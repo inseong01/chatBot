@@ -2,8 +2,17 @@ import './chatFooter.css';
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-export default function ChatFooter({ sendMessage, newMessage, setNewMessage, setIsFocused, oppntUserInfo }) {
+export default function ChatFooter({
+  sendMessage,
+  newMessage,
+  setNewMessage,
+  setIsFocused,
+  oppntUserInfo,
+  isEnter,
+  setIsEnter,
+}) {
   const footerRef = useRef(null);
+
   const onClickTextInput = () => {
     setIsFocused(true);
   };
@@ -30,6 +39,12 @@ export default function ChatFooter({ sendMessage, newMessage, setNewMessage, set
         onClick={onClickTextInput}
         disabled={!oppntUserInfo.status}
         placeholder={oppntUserInfo.status ? '연락을 시작해보세요~' : '현재 관리자가 오프라인입니다'}
+        onKeyUp={(e) => {
+          if (isEnter) return;
+          if (e.key === 'Enter') {
+            setIsEnter(true);
+          }
+        }}
       />
       <button className="text_input_btn" onClick={() => sendMessage()}>
         Send
@@ -44,4 +59,6 @@ ChatFooter.propTypes = {
   setNewMessage: PropTypes.func,
   setIsFocused: PropTypes.func,
   oppntUserInfo: PropTypes.object,
+  setIsEnter: PropTypes.func,
+  isEnter: PropTypes.bool,
 };

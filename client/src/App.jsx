@@ -166,7 +166,7 @@ const App = () => {
   // 메시지 업데이트 조건 1 - 읽음
   useEffect(() => {
     if (!isFocus) return;
-    updateMessage(roomId);
+    updateMessage();
   }, [isFocus]);
 
   // 유저 업데이트 조건 1 - 입력중
@@ -187,6 +187,7 @@ const App = () => {
       .insert([{ content: newMessage, user_type: who, room_id: roomId, is_read: false }]);
     setNewMessage('');
     setIsFocus(false);
+    updateMessage();
   };
 
   // 초기 함수

@@ -194,6 +194,21 @@ supabase 1 on 1 chat
 		:  -webkit-tap-highlight-color: rgba(0,0,0,0);
 
 	<--- 챗봇 프로젝트 스타일링, 오류 수정 --->
+	26. 챗봇 스타일링
+	: 프로젝트 슬라이드 리디자인
+
+	27. 컴포넌트 고유 key 부여
+	: 컴포넌트 key는 고유, 다른 부모에서 자식 key 중복 가능, 형제 간에 고유해야 함
+	message > botMessage, message는 고유 key / botMessage는 index
+		- botMessage key: index 사용(메시지 변하지 않음)
+		- message key: index 사용(메시지 변하지 않음)
+		**component 창 key 확인: key는 컴포넌트 생성될 때만 부여, 확인 가능**
+
+	28. 챗봇 질문 연속 클릭 제한
+	: flag 변수 처리, onClickQuestion() 함수 중복
+
+	29. client, enter 사용 제한
+	:  enter 누르면 경고창 생성 
 
 참고자료
 	- supabase Presence

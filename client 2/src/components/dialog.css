@@ -1,0 +1,32 @@
+@keyframes alertPopup {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+.chat_dialog {
+  width: calc(100% - 32px);
+  box-sizing: border-box;
+  position: absolute;
+
+  color: white;
+  background-color: rgba(255, 0, 0, 0.8);
+  border-radius: 10px;
+  padding: 5px;
+  animation: alertPopup 1.5s both;
+
+  text-align: center;
+}

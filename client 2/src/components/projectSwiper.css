@@ -1,0 +1,26 @@
+.msg.projects_2 .project .img_url {
+  width: 100%;
+  height: 50%;
+  background-color: aliceblue;
+}
+
+/* swiper */
+.swiper {
+  --swiper-navigation-size: 1rem;
+  --swiper-navigation-sides-offset: 16px;
+  --swiper-pagination-bottom: 0px;
+}
+.swiper-wrapper {
+  height: 300px !important;
+}
+
+.msg.projects_2 .swiper-slide .project {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+  text-align: center;
+}

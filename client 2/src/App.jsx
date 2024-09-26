@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, createContext, useRef } from 'react';
+import { useState, useEffect, createContext, useRef, useTransition } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import supabase from './supabase/supabaseClient.js';
 import ChatHeader from './components/chatHeader.jsx';
@@ -17,7 +17,7 @@ const overwriteData = (prev, data, type) => {
     switch (type) {
       case 'user_status': {
         const findUpdateItme = data.find((d) => d.room_id === item[0].room_id);
-        console.log(prev, data, findUpdateItme);
+        // console.log(prev, data, findUpdateItme);
         return findUpdateItme ? [findUpdateItme] : item;
       }
       case 'messages': {
@@ -35,6 +35,8 @@ const App = () => {
   const [messages, setMessages] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
   const [oppntUserInfo, setOppntUserInfo] = useState({});
+  const [isEnter, setIsEnter] = useState(false);
+
   const roomId = useRef(null);
 
   useEffect(() => {
@@ -42,17 +44,17 @@ const App = () => {
     const room_id = uuidv4();
     roomId.current = room_id;
 
-    // 'message' 테이블, 메시지 추가 이벤트 활성화(insert)
+    // 'message' 테이블, 메시지 이벤트 활성화
     supabase
       .channel('messages')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-        console.log('UPDATE', payload);
+        // console.log('UPDATE', payload);
         setMessages((prev) => overwriteData(prev, [payload.new], 'messages'));
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         if (payload.new.room_id !== room_id) return;
         setMessages((prevMessages) => [...prevMessages, [payload.new]]);
-        console.log('INSERT', payload.new);
+        // console.log('INSERT', payload.new);
       })
       .subscribe();
 
@@ -63,10 +65,10 @@ const App = () => {
         if (payload.new.user_type === 'admin') {
           setOppntUserInfo({ status: true, is_typing: payload.new.is_typing });
         }
-        console.log('user_status UPDATE', payload);
+        // console.log('user_status UPDATE', payload);
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
-        console.log('user_status SELECT', payload);
+        // console.log('user_status SELECT', payload);
       })
       .subscribe();
 
@@ -74,10 +76,10 @@ const App = () => {
     supabase
       .channel('bot_questions')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bot_questions' }, (payload) => {
-        console.log('bot_questions UPDATE', payload);
+        // console.log('bot_questions UPDATE', payload);
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'bot_questions' }, (payload) => {
-        console.log('bot_questions SELECT', payload);
+        // console.log('bot_questions SELECT', payload);
       })
       .subscribe();
 
@@ -94,12 +96,12 @@ const App = () => {
         const newState = roomOne.presenceState();
         const adminIndex = Object.keys(newState).findIndex((key) => newState[key][0].user_type === 'admin');
         if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false, is_typing: false }));
-        console.log('sync', newState);
+        // console.log('sync', newState);
       })
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') return;
         const presenceTrackStatus = await roomOne.track(userStatus);
-        console.log('presenceTrackStatus', presenceTrackStatus);
+        // console.log('presenceTrackStatus', presenceTrackStatus);
       });
 
     // chat_bot
@@ -126,7 +128,7 @@ const App = () => {
   const sendMessage = async (newMsg = undefined, id = undefined, table = 'message') => {
     if (!newMsg && newMessage.length === 0 && table === 'message') return;
     const msg = newMsg === undefined ? newMessage : newMsg;
-    console.log('msg', msg);
+
     switch (table) {
       case 'message': {
         await supabase
@@ -135,10 +137,11 @@ const App = () => {
         setNewMessage('');
         setIsFocused(false);
         updateUser(false);
+        updateMessage();
         break;
       }
       case 'bot_answer': {
-        // 답변 딜레이, 전송 메시지 삽입 먼저-애니메이션 추가 가능
+        // 답변 지연
         setTimeout(() => {
           botTable(id);
         }, 1000);
@@ -156,7 +159,7 @@ const App = () => {
       .order('id', { ascending: false })
       .select();
     if (error) return console.error('UpdateMessage Error', error);
-    console.log('updateMessage', data);
+    // console.log('updateMessage', data);
   };
 
   // 'user_status' 테이블, 본인 상태 갱신 함수
@@ -179,14 +182,12 @@ const App = () => {
           if (prev) return [...prev, data];
           else return [data];
         });
-        console.log('bot_questions', data, typeof data);
         break;
       }
       case 'bot_answer': {
         const { data, error } = await supabase.from('bot_answer').select().eq('id', String(id));
         if (error) return console.error('botAnswer Error', error);
         setMessages((prev) => [...prev, data]);
-        console.log('bot_answer', data, typeof data);
         break;
       }
     }
@@ -201,6 +202,8 @@ const App = () => {
           oppntUserInfo={oppntUserInfo}
           sendMessage={sendMessage}
           setNewMessage={setNewMessage}
+          isEnter={isEnter}
+          setIsEnter={setIsEnter}
         />
         <ChatFooter
           sendMessage={sendMessage}
@@ -208,6 +211,8 @@ const App = () => {
           setNewMessage={setNewMessage}
           setIsFocused={setIsFocused}
           oppntUserInfo={oppntUserInfo}
+          isEnter={isEnter}
+          setIsEnter={setIsEnter}
         />
       </div>
     </MyContext.Provider>
