@@ -4,32 +4,34 @@ import ChatBotBtn from './chatBotBtn';
 
 let clickable = true;
 
-function BotMessage({ message, sendMessage }) {
-  const { title, subtitle, questions } = message.metadata;
-  const isQuestionsList = questions.length !== 0;
+function BotMessage({ msg, sendMessage }) {
+  const msgObj = msg.msg_type === 'projects' ? msg.metadata[0] : msg.metadata;
+  const { title, subtitle, links } = msgObj;
+  const isLinksList = links.length !== 0;
 
-  const onClickQuestion = (q) => {
+  const onClickLink = (q) => {
     return () => {
+      console.log(q);
       // 연속 클릭 방지
       if (!clickable) return;
       clickable = false;
       setTimeout(() => {
         clickable = true;
       }, 1000);
-
-      const selectedQusetion = q;
       // 선택 질문 메시지 배열에 추가
-      sendMessage(selectedQusetion.q);
+      sendMessage(q.q_title);
       // 요청 전달
-      sendMessage(undefined, selectedQusetion.id, 'bot_answer');
+      setTimeout(() => {
+        sendMessage(undefined, q.id, 'bot_answer');
+      }, 0);
     };
   };
 
   return (
-    <div className={`bot-msg ${message.id === '0' ? 'first' : ''}`}>
+    <div className={`bot-msg ${msg.id === '0' ? 'first' : ''}`}>
       <div className="title">{title}</div>
       <div className="subtitle">{subtitle}</div>
-      <ChatBotBtn isQuestionsList={isQuestionsList} onClickQuestion={onClickQuestion} questions={questions} />
+      <ChatBotBtn isLinksList={isLinksList} onClickLink={onClickLink} links={links} />
     </div>
   );
 }
@@ -37,6 +39,6 @@ function BotMessage({ message, sendMessage }) {
 export default BotMessage;
 
 BotMessage.propTypes = {
-  message: PropTypes.object,
+  msg: PropTypes.object,
   sendMessage: PropTypes.func,
 };

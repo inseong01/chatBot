@@ -23,14 +23,14 @@ function Message({ message, sendMessage }) {
   switch (message.user_type) {
     case 'bot': {
       if (message.msg_type === 'projects') {
-        const firstProjectMsg = message?.metadata[0];
-        const secondProjectMsg = message?.metadata[1].metadata;
+        const firstProjectMsg = message;
+        const secondProjectMsg = message.metadata[1];
 
         return (
           <>
             <div className={`${msgType}`}>
               <div className="msg projects_1">
-                <BotMessage key={0} message={firstProjectMsg} sendMessage={sendMessage} />
+                <BotMessage key={0} msg={firstProjectMsg} sendMessage={sendMessage} />
               </div>
             </div>
             <div className={`${msgType}`}>
@@ -44,7 +44,7 @@ function Message({ message, sendMessage }) {
         return (
           <div className={`${msgType}`}>
             <div className="msg">
-              <BotMessage key={0} message={message} sendMessage={sendMessage} />
+              <BotMessage key={0} msg={message} sendMessage={sendMessage} />
             </div>
           </div>
         );

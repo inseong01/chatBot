@@ -14,8 +14,8 @@ import ChatBotBtn from './chatBotBtn';
 let clickable = true;
 
 export default function ProjectSwiper({ secondProjectMsg, sendMessage }) {
-  const isQuestionsList = secondProjectMsg.metadata?.lists.length !== 0;
-  console.log(secondProjectMsg);
+  const isLinksList = secondProjectMsg.lists.length !== 0;
+
   useEffect(() => {
     new Swiper('.swiper', {
       modules: [Navigation, Pagination],
@@ -32,7 +32,7 @@ export default function ProjectSwiper({ secondProjectMsg, sendMessage }) {
   }, []);
 
   // botMessage 함수 중복
-  const onClickQuestion = (q) => {
+  const onClickLink = (q) => {
     return () => {
       // 연속 클릭 방지
       if (!clickable) return;
@@ -41,25 +41,26 @@ export default function ProjectSwiper({ secondProjectMsg, sendMessage }) {
         clickable = true;
       }, 1000);
 
-      const selectedQusetion = q;
-      // 선택 질문 메시지 배열에 추가
-      sendMessage(selectedQusetion.q);
-      // 요청 전달
-      sendMessage(undefined, selectedQusetion.id, 'bot_answer');
+      // 선택한 질문, client 메시지화
+      sendMessage(q.q_title);
+      // 요청 전달(함수 나중 실행)
+      setTimeout(() => {
+        sendMessage(undefined, q.id, 'bot_answer');
+      }, 0);
     };
   };
   return (
     <div className="swiper bot-msg">
       <div className="swiper-wrapper">
-        {isQuestionsList &&
+        {isLinksList &&
           secondProjectMsg.lists.map((q, i) => (
             <div className="swiper-slide" key={i}>
               <div className="project">
                 <div className="img_url">{/* {q.data.img} */}</div>
                 <ChatBotBtn
-                  questions={q.data.describes}
-                  isQuestionsList={q.data.describes.length !== 0}
-                  onClickQuestion={onClickQuestion}
+                  links={q.data.links}
+                  isLinksList={q.data.links.length !== 0}
+                  onClickLink={onClickLink}
                 />
               </div>
             </div>

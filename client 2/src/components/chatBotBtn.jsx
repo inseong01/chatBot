@@ -1,13 +1,13 @@
 import './chatBotBtn.css';
 import PropTypes from 'prop-types';
 
-export default function ChatBotBtn({ isQuestionsList, questions, onClickQuestion }) {
+export default function ChatBotBtn({ isLinksList, links, onClickLink }) {
   return (
     <div className="qusetion-wrap">
-      {isQuestionsList &&
-        questions.map((q, i) => (
-          <div key={i} className="qusetion" onClick={onClickQuestion(q)}>
-            {q.q}
+      {isLinksList &&
+        links.map((q, i) => (
+          <div key={i} className="qusetion" onClick={onClickLink(q)}>
+            {q.q_title}
           </div>
         ))}
     </div>
@@ -15,7 +15,7 @@ export default function ChatBotBtn({ isQuestionsList, questions, onClickQuestion
 }
 
 ChatBotBtn.propTypes = {
-  isQuestionsList: PropTypes.bool,
-  questions: PropTypes.array,
-  onClickQuestion: PropTypes.func,
+  isLinksList: PropTypes.bool,
+  links: PropTypes.array,
+  onClickLink: PropTypes.func,
 };
