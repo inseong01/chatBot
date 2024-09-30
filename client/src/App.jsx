@@ -14,7 +14,7 @@ const room_id = uuidv4();
 // 사용자 정보
 const who = 'admin';
 const userStatus = {
-  user: 'user-0',
+  user: 'user-1',
   online_at: new Date().toISOString(),
   user_type: who,
   room_id,
@@ -102,12 +102,12 @@ const App = () => {
     supabase
       .channel('user_status')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'user_status' }, (payload) => {
-        console.log('user_status UPDATE', payload);
+        // console.log('user_status UPDATE', payload);
         // 상대방 변경 정보 추출
         setUserList((prev) => overwriteData(prev, [payload.new], 'user_status'));
       })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
-        console.log('user_status SELECT', payload);
+        // console.log('user_status SELECT', payload);
       })
       .subscribe();
 
@@ -151,13 +151,14 @@ const App = () => {
         sendVisitUser();
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        // leftPresences 자동 leave는 undefined
-        console.log('leave');
+        // leftPresences 자동으로 나가질 때는 undefined
+        console.log('leave', leftPresences);
         // 'user_status', 나간 유저 상태 갱신
         updateLeaveUser('offline', key, setUserList);
       })
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') return;
+        // 추적을 등록해야 본인 상태 공유 가능
         const presenceTrackStatus = await roomOne.track(userStatus);
         console.log(presenceTrackStatus);
       });
@@ -221,7 +222,7 @@ const App = () => {
       .select();
     if (error) return console.error('UpdateUser Error', error);
   };
-
+  console.log('userList', userList);
   return (
     <MyContext.Provider value={who}>
       <div className="chat">

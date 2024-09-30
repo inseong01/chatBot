@@ -35,3 +35,4 @@
 - ~~`Message`, `BotMessage` 컴포넌트 고유 key 설정~~ 
 - ~~chatbot 질문 연속 선택 제한~~
 - ~~client, enter 입력 제한 알림~~
+- admin 채팅 목록, 고유 이름 랜덤 생성

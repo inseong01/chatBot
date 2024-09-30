@@ -48,7 +48,7 @@ const App = () => {
     supabase
       .channel('messages')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
-        // console.log('UPDATE', payload);
+        console.log('UPDATE', payload);
         setMessages((prev) => overwriteData(prev, [payload.new], 'messages'));
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
@@ -92,7 +92,13 @@ const App = () => {
       room_id: room_id,
     };
     roomOne
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        // console.log('join', newPresences);
+        const adminIndex = newPresences.findIndex((presence) => presence.user_type === 'admin');
+        if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false, is_typing: false }));
+      })
       .on('presence', { event: 'sync' }, () => {
+        // console.log('sync');
         const newState = roomOne.presenceState();
         const adminIndex = Object.keys(newState).findIndex((key) => newState[key][0].user_type === 'admin');
         if (adminIndex === -1) setOppntUserInfo((prev) => ({ ...prev, status: false, is_typing: false }));
@@ -101,7 +107,7 @@ const App = () => {
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') return;
         const presenceTrackStatus = await roomOne.track(userStatus);
-        // console.log('presenceTrackStatus', presenceTrackStatus);
+        console.log('presenceTrackStatus', presenceTrackStatus);
       });
 
     // chat_bot
