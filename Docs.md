@@ -108,6 +108,7 @@ messages table은 특정 조건에 맞춰 행을 삽입/갱신하며, 메시지 
 
 ### 1.3. JavaScript 활용 예시
 ---
+<!-- 
 | 개발 플랫폼 | 기능 | 참고 |
 |:---:|:---:|:---:|
 | Supabase | Database | [ 예제 ](#21-supabase-database) 
@@ -116,16 +117,55 @@ messages table은 특정 조건에 맞춰 행을 삽입/갱신하며, 메시지 
 | Javascript | 메시지 | [ 예제 ](#24-메시지) 
 | - | 접속 인원 | [ 예제 ](#25-접속-인원)  
 | - | 접속 목록 | [ 예제 ](#26-접속-목록) 
-| - | 챗봇 | [ 예제 ](#27-챗봇)  
-<style>
-  table {
-    display: table;
-    width: 100%;
-  }
-  th:nth-child(1) {
-    width: 30%;
-  }
-</style>
+| - | 챗봇 | [ 예제 ](#27-챗봇)   -->
+
+<table style="display: table; width: 100%; text-align: center;">
+  <thead>
+    <tr>
+      <th style="text-align: center; width: 30%;">개발 플랫폼</th>
+      <th style="text-align: center;">기능</th>
+      <th style="text-align: center;">참고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Supabase</td>
+      <td>Database</td>
+      <td><a href="#21-supabase-database"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>Realtime</td>
+      <td><a href="#22-supabase-realtime"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>React</td>
+      <td>초기 설정</td>
+      <td><a href="#23-react-%EC%B4%88%EA%B8%B0-%EC%84%A4%EC%A0%95"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>Javascript</td>
+      <td>메시지</td>
+      <td><a href="#24-%EB%A9%94%EC%8B%9C%EC%A7%80"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>접속 인원</td>
+      <td><a href="#25-%EC%A0%91%EC%86%8D-%EC%9D%B8%EC%9B%90"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>접속 목록</td>
+      <td><a href="#26-%EC%A0%91%EC%86%8D-%EB%AA%A9%EB%A1%9D"> 예제 </a></td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>챗봇</td>
+      <td><a href="#27-%EC%B1%97%EB%B4%87"> 예제 </a></td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## 2. 활용하기
 이 섹션은 JavaScript를 사용한 챗봇 채팅 기능 구현 방법을 안내합니다.
