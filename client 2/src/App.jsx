@@ -67,17 +67,11 @@ const App = () => {
         }
         // console.log('user_status UPDATE', payload);
       })
-      .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'user_status' }, (payload) => {
-        // console.log('user_status SELECT', payload);
-      })
       .subscribe();
 
     // 'bot_questions' 테이블 이벤트 설정
     supabase
       .channel('bot_questions')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bot_questions' }, (payload) => {
-        // console.log('bot_questions UPDATE', payload);
-      })
       .on('postgres_changes', { event: 'SELECT', schema: 'public', table: 'bot_questions' }, (payload) => {
         // console.log('bot_questions SELECT', payload);
       })
@@ -180,23 +174,13 @@ const App = () => {
 
   // 'bot' 테이블, 질문/답변 불러오는 함수
   const botTable = async (id = 0, table = 'bot_questions') => {
-    switch (table) {
-      case 'bot_questions': {
-        const { data, error } = await supabase.from('bot_questions').select().eq('id', id);
-        if (error) return console.error('botQuestions Error', error);
-        setMessages((prev) => {
-          if (prev) return [...prev, data];
-          else return [data];
-        });
-        break;
-      }
-      case 'bot_answer': {
-        const { data, error } = await supabase.from('bot_answer').select().eq('id', String(id));
-        if (error) return console.error('botAnswer Error', error);
-        setMessages((prev) => [...prev, data]);
-        break;
-      }
-    }
+    const { data, error } = await supabase.from(table).select().eq('id', id);
+    console.log(table, data);
+    if (error) return console.error('botQuestions Error', error);
+    setMessages((prev) => {
+      if (prev) return [...prev, data];
+      else return [data];
+    });
   };
 
   return (

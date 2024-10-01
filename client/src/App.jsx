@@ -27,7 +27,6 @@ function preventDuplicatedUser(prev, data) {
   if (!prev || prev.length === 0) {
     return [data];
   } else {
-    console.log('data', data);
     const isDuplicated = prev.findIndex(
       (user) => user[0].room_id === data[0].room_id || data[0].user_type === 'admin'
     );
