@@ -19,6 +19,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+#root {
+  height: 100%;
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -77,5 +83,9 @@ button:focus-visible {
   body {
     display: block;
     padding: 16px;
+  }
+
+  #root {
+    padding: 0 0;
   }
 }

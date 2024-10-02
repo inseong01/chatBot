@@ -1,4 +1,3 @@
-
 # 챗봇 채팅 개발 문서
 ## 목차
 ### 1. **이해하기**
@@ -30,13 +29,11 @@
    5. 접속 목록  
    6. 챗봇  
 
-<!-- 
-### 3. **보완 사항** (선택적)
-   - **상호작용 흐름**: 메시지 전송 및 응답 과정을 다이어그램으로 설명
-   - **에러 처리**: 메시지 전송 실패 시 에러 처리 및 상태 코드 설명
-   - **보안 고려 사항**: 인증/인가 및 데이터 암호화 처리
-   - **테스트 및 디버깅 가이드**: 기능별 테스트 및 디버깅 방법
--->
+### 3. **보완하기** 
+   1. 에러 처리
+   2. 보안 고려 사항
+   <!-- - **테스트 및 디버깅 가이드**: 기능별 테스트 및 디버깅 방법 -->
+
 
 ## 1. 이해하기
 이 섹션은 챗봇의 주요 기능과 작동 방식에 대해 설명합니다.
@@ -108,7 +105,7 @@ messages table은 특정 조건에 맞춰 행을 삽입/갱신하며, 메시지 
 
 ### 1.3. JavaScript 활용 예시
 ---
-<!-- 
+
 | 개발 플랫폼 | 기능 | 참고 |
 |:---:|:---:|:---:|
 | Supabase | Database | [ 예제 ](#21-supabase-database) 
@@ -117,55 +114,7 @@ messages table은 특정 조건에 맞춰 행을 삽입/갱신하며, 메시지 
 | Javascript | 메시지 | [ 예제 ](#24-메시지) 
 | - | 접속 인원 | [ 예제 ](#25-접속-인원)  
 | - | 접속 목록 | [ 예제 ](#26-접속-목록) 
-| - | 챗봇 | [ 예제 ](#27-챗봇)   -->
-
-<table style="display: table; width: 100%; text-align: center;">
-  <thead>
-    <tr>
-      <th style="text-align: center; width: 30%;">개발 플랫폼</th>
-      <th style="text-align: center;">기능</th>
-      <th style="text-align: center;">참고</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Supabase</td>
-      <td>Database</td>
-      <td><a href="#21-supabase-database"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>-</td>
-      <td>Realtime</td>
-      <td><a href="#22-supabase-realtime"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>React</td>
-      <td>초기 설정</td>
-      <td><a href="#23-react-%EC%B4%88%EA%B8%B0-%EC%84%A4%EC%A0%95"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>Javascript</td>
-      <td>메시지</td>
-      <td><a href="#24-%EB%A9%94%EC%8B%9C%EC%A7%80"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>-</td>
-      <td>접속 인원</td>
-      <td><a href="#25-%EC%A0%91%EC%86%8D-%EC%9D%B8%EC%9B%90"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>-</td>
-      <td>접속 목록</td>
-      <td><a href="#26-%EC%A0%91%EC%86%8D-%EB%AA%A9%EB%A1%9D"> 예제 </a></td>
-    </tr>
-    <tr>
-      <td>-</td>
-      <td>챗봇</td>
-      <td><a href="#27-%EC%B1%97%EB%B4%87"> 예제 </a></td>
-    </tr>
-  </tbody>
-</table>
-
+| - | 챗봇 | [ 예제 ](#27-챗봇)  
 
 ## 2. 활용하기
 이 섹션은 JavaScript를 사용한 챗봇 채팅 기능 구현 방법을 안내합니다.
@@ -897,3 +846,123 @@ useEffect(function supabaseInitialize() {
 
         **bot_questions table** 속성에 맞춰 새로운 행을 추가하면 새로운 질문을 생성할 수 있습니다.   
         *metadata JSON 속성은 이전에 작성한 JSON 구조와 동일하게 작성해야 합니다.*
+
+## 3. 보완하기
+### 3.1. 에러 처리
+---
+이번 차례는 챗봇 채팅 에러 처리를 안내합니다.
+
+**Supabase 접근 오류**
+```
+"invalid input syntax for type uuid: \"room_id\"" 
+```
+`Supabase table` 접근할 때 발생하는 오류입니다. 해당 오류는 **room_id** 속성을 선택 또는 삽입 이벤트를 수핼할 때 `uuid` 형태와 할당한 형태가 일치하지 않을 때 발생합니다. 
+
+`uuid`는 128-bit의 숫자 문자열입니다. 총 길이는 36자리입니다. 32개의 16진수 숫자가 4개의 하이픈으로 연결된 8-4-4-4-12 형태입니다.    
+
+`uuid`는 `uuid generator` 패키지를 활용하여 `uuid`를 생성할 수 있습니다. 현재 생성한 테이블의 `uuid` 기본값은 버전 4로 설정되어 있습니다. `uuid generator`를 `v4`로 불러와, `uuid` 값을 room_id로 사용할 수 있습니다.    
+> user_status table uuid 기본값 참고
+
+아래 순서를 거쳐 에러를 해결할 수 있습니다.  
+
+1. `uuid generator` 패키지 설치
+
+    ```javascript
+    npm install uuid
+    ```
+
+2. `uuid` 불러오기
+    ```javascript
+    import { v4 as uuidv4 } from 'uuid';
+    uuidv4(); // '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
+    ```
+
+*기본값이 설정되어 있는 속성은 해당 형태와 일치해야 합니다. 할당한 값 형태와 기본값 형태가 일치하도록  유의하시기 바랍니다.* 
+
+**순환참조 오류**
+```
+Uncaught (in promise) TypeError: Converting circular structure to JSON
+    	--> starting at object with constructor 'HTMLButtonElement'
+```
+`HTMLButtonElement`에서 발생하는 오류입니다. 주로 객체가 순환참조를 하고 있을 때 발생합니다. 순환참고는 객체가 자신을 참조하거나 두 개 이상의 객체가 서로를 참고합니다.    
+
+해당 오류는 챗봇 기능에서 발생합니다. 순환참조를 방지하기 위해 `button onClick` 함수를 함수로 한번 더 감싸주어야 합니다.
+
+```html
+<!-- 오류 발생 -->
+<div key={i} className="qusetion" onClick={botTable(q.id)}>
+  {q.q_title}
+</div>
+```
+```html
+<!-- 정상 작동 -->
+<div key={i} className="qusetion" onClick={() => botTable(q.id)}>
+  {q.q_title}
+</div>
+```
+
+**subscribe, 구독 오류**
+```
+Uncaught tried to subscribe multiple times. 'subscribe' can only be called a single time per channel instance
+```
+하나의 `Presence` 채널을 여러 번 구독했을 때 발생하는 오류입니다. `Supabase Presence`는 하나의 채널을 여러 번 구독할 수 없습니다. 
+
+*다만 여러 채널을 설정하면 1대1 대응으로 구독할 수 있습니다.*
+
+```javascript
+// 오류 발생
+const roomOne = supabase.channel('room-one');
+roomOne.subscribe();
+roomOne.subscribe();
+```
+```javascript
+// 정상 작동
+const roomOne = supabase.channel('room-one');
+const roomTwo = supabase.channel('room-two');
+roomOne.subscribe();
+roomTwo.subscribe();
+```
+
+**객체 undefined 오류**
+```
+Uncaught TypeError: Cannot read properties of undefined (reading 'content')
+```
+불러오는 객체를 읽을 수 없을 때 발생하는 오류입니다. 주로 갱산한 정보를 덮어씌울 때 객체 형태 불일치로 발생합니다.    
+
+데이터를 덮어씌우는 함수를 작성할 때 현재 데이터와 전달받은 데이터 형태가 서로 일치하도록 데이터 접근을 고려해야 합니다. 덮어씌워진 데이터는 배열 형태로 반환되어야 합니다. 
+
+### 3.2. 보안 고려 사항
+---
+이번 차례는 챗봇 채팅 보안 고려 사항을 안내합니다.
+
+**supabase key 환경변수 처리**    
+**supabase** 변수는 `Supabase` 프로젝트를 사용할 수 있도록 연결합니다. **createClient** 함수 인자는 **supabase** 변수의 아이디와 비밀번호 역할을 합니다. 배포 시 아이디와 비밀번호가 탈취되면 악의적인 사용으로 정상적인 `Supabase` 사용이 어려울 수 있습니다.   
+
+```javascript
+// supabase.js
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+```
+
+이를 방지하기 위해 **SUPABASE_URL**, **SUPABASE_ANON_KEY** 두 개의 변수를 환경변수로 선언해야 합니다. `.env` 파일을 생성하고 `key=value` 형식으로 작성합니다. 작성한 환경변수는 프로젝트 내 어디서든 불러올 수 있습니다.   
+
+- `.env` 작성방법   
+
+    ```javascript
+    // 기본
+    SUPABASE_URL = "SUPABASE_URL"
+    SUPABASE_ANON_KEY = "SUPABASE_ANON_KEY"
+    
+    // vite 프로젝트 사용 시
+    VITE_SUPABASE_URL = "SUPABASE_URL"
+    VITE_SUPABASE_ANON_KEY = "SUPABASE_ANON_KEY"
+    ``` 
+
+- `.env` 변수 호출방법    
+
+    ```javascript
+    // supabase.js
+    const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    ```
+`.env` 변수 작성방법과 호출방법은 개발 환경에 따라 다를 수 있습니다.    

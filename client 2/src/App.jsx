@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, createContext, useRef, useTransition } from 'react';
+import { useState, useEffect, createContext, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import supabase from './supabase/supabaseClient.js';
 import ChatHeader from './components/chatHeader.jsx';

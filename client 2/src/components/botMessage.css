@@ -24,8 +24,8 @@
 
 /* 질문 목록 */
 .bot-msg.first .qusetion-wrap {
-  flex-wrap: nowrap;
-  flex-direction: column;
+  /* flex-wrap: nowrap;
+  flex-direction: column; */
 }
 
 /* 메시지 구성요소 */
