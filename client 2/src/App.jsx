@@ -126,6 +126,7 @@ const App = () => {
 
   // 'message' 'bot_answer' 테이블, 메시지 보내는 함수
   const sendMessage = async (newMsg = undefined, id = undefined, table = 'message') => {
+    console.log('sendMessage', newMsg);
     if (!newMsg && newMessage.length === 0 && table === 'message') return;
     const msg = newMsg === undefined ? newMessage : newMsg;
 
